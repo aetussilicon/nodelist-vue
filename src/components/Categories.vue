@@ -1,16 +1,17 @@
 <script>
 import axios from 'axios'
-import { ChevronDown } from 'lucide-vue-next'
+import { ChevronDown, Flag } from 'lucide-vue-next'
+import { PriorityLevels } from '../conts/PriorityLevels'
 
 export default {
   name: 'Categories-Card',
-  components: { ChevronDown },
+  components: { ChevronDown, Flag },
   data() {
     return {
       categories: [],
       loading: false,
       error: null,
-      openCategories: {}
+      openCategories: {},
     }
   },
   mounted() {
@@ -38,6 +39,10 @@ export default {
     },
     toggleOpen(id) {
       this.openCategories[id] = !this.openCategories[id]
+    },
+    getPrioriotyColor(priorityTitle) {
+      const priority = PriorityLevels.find((priority) => priority.label === priorityTitle);
+      return priority?.color;
     }
   }
 }
@@ -53,14 +58,44 @@ export default {
           <ChevronDown
             class="text-white transition duration-300"
             :class="{
-              ' ease-out' : openCategories[categorie.taskGroupId],
+              'ease-out' : openCategories[categorie.taskGroupId],
               'rotate-180 ease-in' : !openCategories[categorie.taskGroupId]
               }"
           />
         </button>
       </div>
-      <div v-if="openCategories[categorie.taskGroupId]" class="bg-[#1F1F1F] mt-3 p-2 rounded-md">
-        <h1>Tasks</h1>
+      <div
+        v-if="openCategories[categorie.taskGroupId]"
+        class="bg-[#1F1F1F] mt-3 p-2 rounded-md flex flex-col gap-3"
+      >
+        <div v-for="task in categorie.tasks" :key="task.taskId">
+         <div class="bg-[#121212] p-3 flex flex-col gap-3 rounded-md">
+            <div class="flex items-center justify-between">
+              <div class="flex gap-2 text-xl font-bold capitalize">
+               <input type="checkbox" />
+               <label>{{task.title}}</label>
+            </div>
+
+            <div>
+              <Flag :style="{ color: getPrioriotyColor(task.priority), fill:
+                getPrioriotyColor(task.priority) }" />
+            </div>
+            </div>
+            <div class="p-3 bg-[#1F1F1F] rounded-md">
+              <textarea
+                readonly
+                rows="3"
+                :value="task.description"
+                class="w-full outline-none bg-transparent resize-none"
+              />
+            </div>
+            <div class="h-1 w-full bg-[#1F1F1F] rounded-full my-2" />
+            <div class="text-sm flex justify-between">
+              <p><strong>Criado em:</strong> {{task.createdAt}}</p>
+              <p><strong>Atualizado em:</strong> {{task.updatedAt}}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
